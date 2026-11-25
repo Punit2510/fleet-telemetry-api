@@ -1,0 +1,12 @@
+{
+  "events": [
+    {
+      "device_id": "00000000-0000-4000-8000-000000000001",
+      "observed_at": "2026-11-25T10:00:00Z",
+      "metric": "engine_temperature",
+      "value": 91.5,
+      "unit": "celsius",
+      "attributes": {"source": "fixture", "ignition": true}
+    }
+  ]
+}

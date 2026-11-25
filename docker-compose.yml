@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: fleet_telemetry
+      POSTGRES_USER: fleet
+      POSTGRES_PASSWORD: fleet_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fleet -d fleet_telemetry"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://fleet:fleet_dev_password@db:5432/fleet_telemetry
+      BIND_ADDR: 0.0.0.0:8080
+      JWT_SECRET: ${JWT_SECRET:-local-only-change-this-secret-before-deploying-123}
+      JWT_TTL_SECONDS: 3600
+      MAX_BATCH_SIZE: 1000
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@example.com}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-change-this-password-123}
+      RUST_LOG: info,tower_http=info,sqlx=warn
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

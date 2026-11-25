@@ -1,0 +1,43 @@
+name: Rust CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: fleet
+          POSTGRES_PASSWORD: fleet_test_password
+          POSTGRES_DB: fleet_telemetry
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fleet -d fleet_telemetry"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://fleet:fleet_test_password@localhost:5432/fleet_telemetry
+      JWT_SECRET: ci-only-secret-0123456789abcdef0123456789
+      BOOTSTRAP_ADMIN_EMAIL: admin@example.com
+      BOOTSTRAP_ADMIN_PASSWORD: ci-password-123456
+      RUST_BACKTRACE: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Lint
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Test
+        run: cargo test --all-targets

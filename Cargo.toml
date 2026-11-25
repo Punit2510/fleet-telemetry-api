@@ -1,0 +1,42 @@
+[package]
+name = "fleet-telemetry-api"
+version = "0.1.0"
+edition = "2021"
+description = "A secure Fleet Telemetry Ingestion API built with Axum, Tokio and PostgreSQL"
+license = "MIT"
+
+[lib]
+name = "fleet_telemetry_api"
+path = "src/lib.rs"
+
+[[bin]]
+name = "fleet-telemetry-api"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+axum = { version = "0.7", features = ["macros"] }
+bcrypt = "0.15"
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+http = "1"
+jsonwebtoken = "9"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json", "migrate", "macros"] }
+thiserror = "2"
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["trace", "cors", "limit", "request-id"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+validator = { version = "0.18", features = ["derive"] }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["async_tokio"] }
+http-body-util = "0.1"
+tower = { version = "0.5", features = ["util"] }
+
+[[bench]]
+name = "ingestion"
+harness = false
